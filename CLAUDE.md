@@ -12,6 +12,7 @@
 ## 目錄
 
 - `source/` — design-canvas 原始檔（`<sc-if>`、`<sc-for>`、`{{ 綁定 }}` 語法），要改介面改這裡
+- `source/originals/` — 對齊設計規範**之前**的原始匯出，純存檔，不要改也不要拿來建置
 - `preview/` — 由 `source/` 產生的單檔預覽，**不要手改**
 - `tools/` — 建置與重構腳本
 - `design/design-system.md` — 設計規範，改任何視覺前先讀
