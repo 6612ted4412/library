@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>承光圖書館・介面預覽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Plus Jakarta Sans","Noto Sans TC",system-ui,sans-serif;
+    background:#F7F8F9;color:#1C1C1C;-webkit-font-smoothing:antialiased;text-wrap:pretty;
+  }
+  a{color:#B7262A;text-decoration:none}
+
+  /* ── hero：黑底 tile，紅色只出現在一個地方 ── */
+  .hero{background:#000;color:#fff;padding:88px 48px 80px}
+  .hero-in{max-width:1180px;margin:0 auto}
+  .mark{display:flex;align-items:center;gap:11px;margin-bottom:34px}
+  .mark-sq{width:34px;height:34px;border-radius:11px;background:#DC2F33;display:flex;align-items:center;justify-content:center}
+  .mark-sq i{width:13px;height:13px;border-radius:4px;border:2.5px solid #fff;display:block}
+  .mark-t{font-size:16px;font-weight:700}
+  h1{font-size:40px;font-weight:800;letter-spacing:-1.4px;line-height:1.15;margin:0 0 14px}
+  .lede{font-size:14.5px;line-height:1.8;color:#B0B4B8;max-width:520px;margin:0}
+  .rules{display:flex;gap:26px;flex-wrap:wrap;margin-top:30px}
+  .rule{display:flex;align-items:center;gap:9px;font-size:13px;color:#E4E6E9}
+  .dot{width:6px;height:6px;border-radius:99px;background:#DC2F33;flex:0 0 6px}
+
+  /* ── 內容 ── */
+  .wrap{max-width:1180px;margin:0 auto;padding:56px 48px 88px}
+  .eyebrow{font-size:10.5px;font-weight:600;letter-spacing:.6px;color:#8B9096;text-transform:uppercase;margin:0 0 10px}
+  h2{font-size:20px;font-weight:700;letter-spacing:-.4px;margin:0 0 4px}
+  .sub{font-size:12.5px;color:#6B7075;margin:0 0 24px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:22px}
+  .card{background:#fff;border:1px solid #E6E8EA;border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
+  .shot{position:relative;height:250px;overflow:hidden;background:#F2F3F4;border-bottom:1px solid #E6E8EA}
+  .shot iframe{position:absolute;top:0;left:0;width:1440px;height:900px;border:0;transform:scale(.26);transform-origin:0 0;pointer-events:none}
+  .shot.tall iframe{transform:scale(.26) translateY(0)}
+  .card-b{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .card-t{font-size:15px;font-weight:700;letter-spacing:-.2px}
+  .card-t span{font-size:11.5px;font-weight:500;color:#9DA2A8;margin-left:6px}
+  .card-d{font-size:12.5px;color:#6B7075;line-height:1.7;flex:1}
+  .open{align-self:flex-start;margin-top:6px;background:#DC2F33;color:#fff;font-size:13px;font-weight:600;
+        padding:10px 20px;border-radius:99px;transition:background .15s ease-out}
+  .open:hover{background:#B7262A;color:#fff}
+
+  /* ── 色票 ── */
+  .tokens{margin-top:64px}
+  .sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
+  .sw{background:#fff;border:1px solid #E6E8EA;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:9px}
+  .chip{height:52px;border-radius:12px;border:1px solid rgba(0,0,0,.06)}
+  .sw-n{font-size:11.5px;font-weight:600}
+  .sw-h{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8B9096}
+
+  .note{margin-top:56px;background:#fff;border:1px solid #E6E8EA;border-radius:20px;padding:24px 26px;
+        font-size:12.5px;line-height:1.9;color:#5C6166}
+  .note b{color:#1C1C1C;font-weight:700}
+  code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:#F2F3F4;border-radius:5px;padding:2px 6px}
+
+  @media (max-width:640px){
+    .hero{padding:56px 24px 48px}
+    h1{font-size:30px;letter-spacing:-1px}
+    .wrap{padding:40px 24px 64px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="mark"><div class="mark-sq"><i></i></div><div class="mark-t">承光圖書館</div></div>
+    <h1>三個畫面，<br />一套設計語言。</h1>
+    <p class="lede">讀者端、管理端與線框稿的離線預覽。所有互動（登入、搜尋、篩選、借出、歸還、新增書籍）都可以直接點，資料存在記憶體裡，重新整理就回到初始狀態。</p>
+    <div class="rules">
+      <div class="rule"><span class="dot"></span>每人同時最多借 5 本</div>
+      <div class="rule"><span class="dot"></span>每本借期 14 天</div>
+      <div class="rule"><span class="dot"></span>借滿須先歸還才能再借</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="eyebrow">Screens</p>
+  <h2>畫面預覽</h2>
+  <p class="sub">縮圖是真的頁面，點「開啟」進入可操作的完整版本。</p>
+
+  <div class="grid">
+    <article class="card">
+      <div class="shot"><iframe src="./Patron_Portal.html" title="讀者端預覽" loading="lazy" scrolling="no"></iframe></div>
+      <div class="card-b">
+        <div class="card-t">讀者端<span>Patron Portal</span></div>
+        <p class="card-d">登入／註冊、館藏查詢與分類篩選、額度指示、我的借閱與歸還、帳戶與歷史紀錄。借滿 5 本時借閱按鈕會自己停用。</p>
+        <a class="open" href="./Patron_Portal.html">開啟畫面</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><iframe src="./Library_System.html" title="管理端預覽" loading="lazy" scrolling="no"></iframe></div>
+      <div class="card-b">
+        <div class="card-t">管理端<span>Admin Console</span></div>
+        <p class="card-d">借閱管理（含逾期天數計算與辦理歸還）、書籍 CRUD、使用者 CRUD、新增借閱時的上限與館藏檢查。</p>
+        <a class="open" href="./Library_System.html">開啟畫面</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><iframe src="./Wireframes.html" title="線框稿預覽" loading="lazy" scrolling="no"></iframe></div>
+      <div class="card-b">
+        <div class="card-t">線框稿<span>Wireframes</span></div>
+        <p class="card-d">角色分流圖與八張低保真草稿，對應到上面兩個成品畫面。手繪字體與虛線是刻意的，用來和成品區分開。</p>
+        <a class="open" href="./Wireframes.html">開啟畫面</a>
+      </div>
+    </article>
+  </div>
+
+  <section class="tokens">
+    <p class="eyebrow">Tokens</p>
+    <h2>核心色票</h2>
+    <p class="sub">完整規範見 <code>Design_System_承光圖書館.md</code>。</p>
+    <div class="sw-grid">
+      <div class="sw"><div class="chip" style="background:#DC2F33"></div><div class="sw-n">承光紅 primary</div><div class="sw-h">#DC2F33</div></div>
+      <div class="sw"><div class="chip" style="background:#B7262A"></div><div class="sw-n">按下／文字用</div><div class="sw-h">#B7262A</div></div>
+      <div class="sw"><div class="chip" style="background:#FF6B63"></div><div class="sw-n">深底上的紅</div><div class="sw-h">#FF6B63</div></div>
+      <div class="sw"><div class="chip" style="background:#FDF0F0"></div><div class="sw-n">紅色淡底</div><div class="sw-h">#FDF0F0</div></div>
+      <div class="sw"><div class="chip" style="background:#1C1C1C"></div><div class="sw-n">墨 ink</div><div class="sw-h">#1C1C1C</div></div>
+      <div class="sw"><div class="chip" style="background:#6B7075"></div><div class="sw-n">次要文字</div><div class="sw-h">#6B7075</div></div>
+      <div class="sw"><div class="chip" style="background:#F7F8F9"></div><div class="sw-n">畫布 canvas</div><div class="sw-h">#F7F8F9</div></div>
+      <div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="sw-n">卡片 surface</div><div class="sw-h">#FFFFFF</div></div>
+      <div class="sw"><div class="chip" style="background:#E6E8EA"></div><div class="sw-n">細線 hairline</div><div class="sw-h">#E6E8EA</div></div>
+      <div class="sw"><div class="chip" style="background:#000000"></div><div class="sw-n">全黑 tile</div><div class="sw-h">#000000</div></div>
+    </div>
+  </section>
+
+  <section class="note">
+    <b>關於這份預覽</b><br />
+    原始檔是 design-canvas 格式（<code>&lt;sc-if&gt;</code>、<code>&lt;sc-for&gt;</code>、<code>{{ 綁定 }}</code>），需要編輯器的 <code>support.js</code> 才跑得動。這裡把樣板、狀態邏輯和一個 6KB 的極簡執行環境打包進同一個檔案，所以每個 HTML 都能單獨開、單獨寄給別人，不需要伺服器也不需要網路（只有字型會連 Google Fonts，離線時會退到系統字體）。<br />
+    這三個畫面已經照 <code>Design_System_承光圖書館.md</code> 整理過：字級收斂成規範上的階梯、淺底紅字改用 <code>#B7262A</code>、圓角收成 12 / 16 / 20 / 24、可點元素加上 150ms 過場與按下 <code>scale(0.95)</code>，並補上鍵盤焦點框（按 Tab 試試）。對應的 design-canvas 原始檔在 <code>source/</code>，可以放回編輯器繼續改。<br />
+    今天的日期在示範資料裡固定為 <code>2026-08-24</code>，逾期天數是以這天為基準算出來的。
+  </section>
+</main>
+
+</body>
+</html>

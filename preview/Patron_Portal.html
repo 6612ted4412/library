@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>承光圖書館・讀者端 Patron Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Plus Jakarta Sans", "Noto Sans TC", sans-serif; background: #F7F8F9; color: #1C1C1C; -webkit-font-smoothing: antialiased; text-wrap: pretty; }
+  a { color: #B7262A; text-decoration: none; }
+  a:hover { color: #DC2F33; }
+  input { font-family: inherit; }
+  ::placeholder { color: #9DA2A8; }
+
+  /* ── 設計規範：過場、按下、焦點 ───────────────────────────── */
+  :root { --ease: cubic-bezier(0.25, 0.1, 0.25, 1); }
+  [role="button"], input, a {
+    transition: background-color 150ms var(--ease), color 150ms var(--ease),
+                border-color 150ms var(--ease), opacity 150ms var(--ease),
+                transform 150ms var(--ease);
+  }
+  /* pill 形狀＝動作，按下縮 5% */
+  [role="button"][style*="border-radius: 99px"]:active { transform: scale(0.95); }
+  [role="button"]:focus-visible,
+  a:focus-visible { outline: 2px solid #DC2F33; outline-offset: 2px; }
+  input:focus-visible { outline: 2px solid #DC2F33 !important; outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    [role="button"], input, a { transition: none; }
+    [role="button"][style*="border-radius: 99px"]:active { transform: none; }
+  }
+
+</style>
+</head>
+<body>
+<div id="dc-root"></div>
+
+<template id="dc-tpl">
+<sc-if value="{{ guest }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height: 100vh; display: flex; align-items: stretch; background: #000000;">
+    <div style="flex: 1; min-width: 0; display: none;"></div>
+    <div style="flex: 1; min-width: 0; padding: 56px 48px; display: flex; flex-direction: column; justify-content: center; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 11px;">
+        <div style="width: 34px; height: 34px; border-radius: 12px; background: #DC2F33; display: flex; align-items: center; justify-content: center; flex: 0 0 34px;">
+          <div style="width: 13px; height: 13px; border-radius: 4px; border: 2.5px solid #FFFFFF;"></div>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: #FFFFFF;">承光圖書館</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 40px; font-weight: 800; color: #FFFFFF; letter-spacing: -1.4px; line-height: 1.15;">借書，<br />從這裡開始。</div>
+        <div style="font-size: 15px; color: #B0B4B8; line-height: 1.8; max-width: 380px;">42,806 冊館藏線上查詢。每人同時可借 5 本，每本借期 14 天，到期前可線上歸還或續借。</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        <sc-for list="{{ rules }}" as="r" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 11px;">
+            <div style="width: 6px; height: 6px; border-radius: 99px; background: #DC2F33; flex: 0 0 6px;"></div>
+            <div style="font-size: 13.5px; color: #E4E6E9;">{{ r.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="width: 480px; flex: 0 0 480px; background: #FFFFFF; padding: 56px 48px; display: flex; flex-direction: column; justify-content: center; gap: 22px;">
+      <div style="display: flex; gap: 4px; background: #F2F3F4; border-radius: 99px; padding: 4px;">
+        <div onClick="{{ toLogin }}" style="flex: 1; text-align: center; font-size: 13.5px; padding: 9px; border-radius: 99px; cursor: pointer; background: {{ tabLoginBg }}; color: {{ tabLoginFg }}; font-weight: {{ tabLoginW }};" role="button" tabindex="0">登入 Sign in</div>
+        <div onClick="{{ toRegister }}" style="flex: 1; text-align: center; font-size: 13.5px; padding: 9px; border-radius: 99px; cursor: pointer; background: {{ tabRegBg }}; color: {{ tabRegFg }}; font-weight: {{ tabRegW }};" role="button" tabindex="0">註冊 Register</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="font-size: 24px; font-weight: 700; letter-spacing: -0.6px;">{{ authTitle }}</div>
+        <div style="font-size: 13.5px; color: #6B7075;">{{ authSub }}</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 13px;">
+        <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 12.5px; font-weight: 600; color: #5C6166;">姓名 Name</div>
+            <input value="{{ regName }}" onChange="{{ onRegName }}" placeholder="王小明" style="border: 1px solid #E6E8EA; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; outline: none; background: #FAFBFC;" />
+          </div>
+        </sc-if>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 12.5px; font-weight: 600; color: #5C6166;">Email</div>
+          <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="pinhsuan.lin@example.com" style="border: 1px solid #E6E8EA; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; outline: none; background: #FAFBFC;" />
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 12.5px; font-weight: 600; color: #5C6166;">密碼 Password</div>
+          <input type="password" value="{{ pw }}" onChange="{{ onPw }}" placeholder="••••••••" style="border: 1px solid #E6E8EA; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; outline: none; background: #FAFBFC;" />
+        </div>
+        <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 12.5px; font-weight: 600; color: #5C6166;">確認密碼 Confirm</div>
+            <input type="password" value="{{ pw2 }}" onChange="{{ onPw2 }}" placeholder="••••••••" style="border: 1px solid #E6E8EA; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; outline: none; background: #FAFBFC;" />
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ hasAuthMsg }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size: 12.5px; background: #FDF0F0; color: #B7262A; border-radius: 12px; padding: 11px 13px;">{{ authMsg }}</div>
+      </sc-if>
+
+      <div onClick="{{ submitAuth }}" style="background: #DC2F33; color: #FFF; font-size: 14px; font-weight: 600; padding: 13px; border-radius: 99px; cursor: pointer; text-align: center;" style-hover="background: #B7262A;" role="button" tabindex="0">{{ authCta }}</div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: #8B9096;">
+        <div>示範模式：直接送出即可進入</div>
+        <a href="Library_System.html">管理端 →</a>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ signedIn }}" hint-placeholder-val="{{ true }}">
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E6E8EA; position: sticky; top: 0; z-index: 6;">
+    <div style="max-width: 1180px; margin: 0 auto; padding: 16px 28px; display: flex; align-items: center; gap: 22px;">
+      <div style="display: flex; align-items: center; gap: 11px;">
+        <div style="width: 32px; height: 32px; border-radius: 12px; background: #DC2F33; display: flex; align-items: center; justify-content: center; flex: 0 0 32px;">
+          <div style="width: 12px; height: 12px; border-radius: 4px; border: 2.5px solid #FFFFFF;"></div>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; letter-spacing: -0.2px; white-space: nowrap;">承光圖書館</div>
+      </div>
+      <nav style="display: flex; gap: 4px; margin-left: 10px;">
+        <div onClick="{{ goSearch }}" style="font-size: 13.5px; padding: 8px 14px; border-radius: 99px; cursor: pointer; background: {{ tSearchBg }}; color: {{ tSearchFg }}; font-weight: {{ tSearchW }}; white-space: nowrap;" style-hover="background: #F2F3F4;" role="button" tabindex="0">館藏查詢 Search</div>
+        <div onClick="{{ goLoans }}" style="font-size: 13.5px; padding: 8px 14px; border-radius: 99px; cursor: pointer; background: {{ tLoansBg }}; color: {{ tLoansFg }}; font-weight: {{ tLoansW }}; white-space: nowrap;" role="button" tabindex="0">我的借閱 My loans</div>
+        <div onClick="{{ goAccount }}" style="font-size: 13.5px; padding: 8px 14px; border-radius: 99px; cursor: pointer; background: {{ tAcctBg }}; color: {{ tAcctFg }}; font-weight: {{ tAcctW }}; white-space: nowrap;" role="button" tabindex="0">帳戶 Account</div>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 14px; margin-left: auto;">
+        <a href="Library_System.html" style="font-size: 12.5px; color: #6B7075; white-space: nowrap;">管理端 →</a>
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <div style="width: 32px; height: 32px; border-radius: 99px; background: #EFF0F2; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700; color: #5C6166; flex: 0 0 32px;">{{ initial }}</div>
+          <div style="font-size: 13.5px; font-weight: 600; white-space: nowrap;">{{ myName }}</div>
+        </div>
+        <div onClick="{{ logout }}" style="font-size: 12.5px; font-weight: 600; border: 1px solid #E6E8EA; border-radius: 99px; padding: 7px 14px; cursor: pointer; color: #5C6166; white-space: nowrap;" style-hover="border-color: #AEB3B8;" role="button" tabindex="0">登出</div>
+      </div>
+    </div>
+  </header>
+
+  <main style="flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 30px 28px 64px;">
+
+    <div style="display: flex; align-items: center; gap: 16px; background: {{ quotaBg }}; border: 1px solid {{ quotaBd }}; border-radius: 16px; padding: 14px 20px; margin-bottom: 26px; flex-wrap: wrap;">
+      <div style="font-size: 13.5px; font-weight: 700; color: {{ quotaFg }};">{{ quotaTitle }}</div>
+      <div style="display: flex; gap: 5px;">
+        <sc-for list="{{ quotaDots }}" as="d" hint-placeholder-count="5">
+          <div style="width: 22px; height: 6px; border-radius: 99px; background: {{ d.bg }};"></div>
+        </sc-for>
+      </div>
+      <div style="font-size: 12.5px; color: #6B7075; margin-left: auto;">{{ quotaNote }}</div>
+    </div>
+
+    <sc-if value="{{ isSearch }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div style="background: #000000; border-radius: 24px; padding: 36px 40px; display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <div style="font-size: 28px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.7px;">館藏查詢</div>
+            <div style="font-size: 13.5px; color: #B0B4B8;">可用 書名、作者、ISBN、出版商 搜尋</div>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 280px; background: #FFFFFF; border-radius: 99px; padding: 13px 20px;">
+              <div style="width: 13px; height: 13px; border-radius: 99px; border: 2px solid #9DA2A8; flex: 0 0 13px;"></div>
+              <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="輸入關鍵字" style="border: 0; outline: none; background: transparent; font-size: 15px; flex: 1; min-width: 0; color: #1C1C1C;" />
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 9px; flex-wrap: wrap;">
+            <div style="font-size: 12.5px; color: #8B9096;">分類：</div>
+            <sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
+              <div onClick="{{ f.go }}" style="font-size: 12.5px; font-weight: 600; border-radius: 99px; padding: 7px 14px; cursor: pointer; border: 1px solid {{ f.bd }}; background: {{ f.bg }}; color: {{ f.fg }};" role="button" tabindex="0">{{ f.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="font-size: 13.5px; color: #6B7075;">{{ resultLabel }}</div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px;">
+          <sc-for list="{{ books }}" as="b" hint-placeholder-count="6">
+            <div style="background: #FFFFFF; border: 1px solid #E6E8EA; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 15px;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                  <div style="font-size: 15px; font-weight: 700; letter-spacing: -0.2px;">{{ b.title }}</div>
+                  <div style="font-size: 12.5px; color: #6B7075;">{{ b.authorLine }}</div>
+                </div>
+                <div style="font-size: 11.5px; font-weight: 600; border-radius: 99px; padding: 4px 11px; background: {{ b.stBg }}; color: {{ b.stFg }}; white-space: nowrap;">{{ b.stLabel }}</div>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 16px; padding: 14px 0; border-top: 1px solid #E6E8EA; border-bottom: 1px solid #E6E8EA;">
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                  <div style="font-size: 10.5px; color: #8B9096; letter-spacing: 0.3px;">分類 CATEGORY</div>
+                  <div style="font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b.category }}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; grid-column: span 2;">
+                  <div style="font-size: 10.5px; color: #8B9096; letter-spacing: 0.3px;">出版 PUBLISHER</div>
+                  <div style="font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b.publisher }}・{{ b.publishDate }}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; grid-column: span 3;">
+                  <div style="font-size: 10.5px; color: #8B9096; letter-spacing: 0.3px;">館藏 COPIES</div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap;">{{ b.availLabel }}</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div onClick="{{ b.act }}" style="font-size: 13.5px; font-weight: 600; padding: 10px 18px; border-radius: 99px; cursor: {{ b.cursor }}; background: {{ b.btnBg }}; color: {{ b.btnFg }}; border: 1px solid {{ b.btnBd }}; white-space: nowrap;" role="button" tabindex="0">{{ b.btnLabel }}</div>
+                <div style="font-size: 12.5px; color: #8B9096;">{{ b.hint }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLoans }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 22px;">
+        <div>
+          <div style="font-size: 28px; font-weight: 700; letter-spacing: -0.6px;">我的借閱</div>
+          <div style="font-size: 13.5px; color: #6B7075; margin-top: 6px;">{{ loansSummary }}</div>
+        </div>
+
+        <sc-if value="{{ hasLoans }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="font-size: 15px; font-weight: 700;">借閱中 On loan</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+              <sc-for list="{{ myLoans }}" as="l" hint-placeholder-count="3">
+                <div style="background: #FFFFFF; border: 1px solid {{ l.cardBd }}; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                      <div style="font-size: 15px; font-weight: 700; letter-spacing: -0.2px;">{{ l.title }}</div>
+                      <div style="font-size: 12.5px; color: #6B7075;">{{ l.authorLine }}</div>
+                    </div>
+                    <div style="font-size: 11.5px; font-weight: 600; border-radius: 99px; padding: 4px 11px; background: {{ l.stBg }}; color: {{ l.stFg }}; white-space: nowrap;">{{ l.left }}</div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="height: 6px; border-radius: 99px; background: #EFF0F2; overflow: hidden;">
+                      <div style="height: 100%; border-radius: 99px; background: {{ l.barBg }}; width: {{ l.barW }};"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #8B9096;">
+                      <div>借出 {{ l.start }}</div>
+                      <div>應還 {{ l.due }}</div>
+                    </div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; padding: 14px 0; border-top: 1px solid #E6E8EA; border-bottom: 1px solid #E6E8EA;">
+                    <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                      <div style="font-size: 10.5px; color: #8B9096; letter-spacing: 0.3px;">分類 CATEGORY</div>
+                      <div style="font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ l.category }}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                      <div style="font-size: 10.5px; color: #8B9096; letter-spacing: 0.3px;">出版 PUBLISHER</div>
+                      <div style="font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ l.publisher }}</div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div onClick="{{ l.ret }}" style="font-size: 13.5px; font-weight: 600; padding: 10px 20px; border-radius: 99px; cursor: pointer; background: #DC2F33; color: #FFFFFF; white-space: nowrap;" style-hover="background: #B7262A;" role="button" tabindex="0">歸還 Return</div>
+                    <div style="font-size: 12.5px; color: #8B9096;">{{ l.note }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-size: 12.5px; color: #8B9096;">借期固定 14 天，逾期每冊每日 NT$10；借滿 5 本須先歸還才能再借。</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noLoans }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #FFFFFF; border: 1px dashed #DDE0E3; border-radius: 20px; padding: 46px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+            <div style="font-size: 15px; font-weight: 700;">目前沒有借閱中的書</div>
+            <div style="font-size: 13.5px; color: #6B7075;">最多可同時借 5 本，每本 14 天。</div>
+            <div onClick="{{ goSearch }}" style="background: #DC2F33; color: #FFF; font-size: 13.5px; font-weight: 600; padding: 10px 20px; border-radius: 99px; cursor: pointer;" style-hover="background: #B7262A;" role="button" tabindex="0">去查詢館藏</div>
+          </div>
+        </sc-if>
+
+        <div style="background: #FFFFFF; border: 1px solid #E6E8EA; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="font-size: 15px; font-weight: 700;">歸還紀錄 History</div>
+          <sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 14px; padding-bottom: 12px; border-bottom: 1px solid #E6E8EA;">
+              <div style="font-size: 13.5px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ h.title }}</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8B9096; white-space: nowrap;">{{ h.returned }} 已歸還</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 22px; max-width: 720px;">
+        <div>
+          <div style="font-size: 28px; font-weight: 700; letter-spacing: -0.6px;">我的帳戶</div>
+          <div style="font-size: 13.5px; color: #6B7075; margin-top: 6px;">個人資料與借閱規則</div>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #E6E8EA; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 52px; height: 52px; border-radius: 99px; background: #FDF0F0; color: #B7262A; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; flex: 0 0 52px;">{{ initial }}</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="font-size: 20px; font-weight: 700;">{{ myName }}</div>
+              <div style="font-size: 12.5px; color: #6B7075;">{{ myEmail }}</div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+            <div style="background: #F7F8F9; border-radius: 16px; padding: 14px 16px;">
+              <div style="font-size: 11.5px; color: #6B7075;">證號 User ID</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; margin-top: 4px;">{{ myId }}</div>
+            </div>
+            <div style="background: #F7F8F9; border-radius: 16px; padding: 14px 16px;">
+              <div style="font-size: 11.5px; color: #6B7075;">身分 Role</div>
+              <div style="font-size: 13.5px; font-weight: 600; margin-top: 4px;">一般使用者</div>
+            </div>
+            <div style="background: #F7F8F9; border-radius: 16px; padding: 14px 16px;">
+              <div style="font-size: 11.5px; color: #6B7075;">借閱中</div>
+              <div style="font-size: 13.5px; font-weight: 600; margin-top: 4px;">{{ quotaTitle }}</div>
+            </div>
+          </div>
+        </div>
+        <div style="background: #000000; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-size: 15px; font-weight: 700; color: #FFFFFF;">借閱規則 Borrowing rules</div>
+          <sc-for list="{{ rules }}" as="r" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 11px;">
+              <div style="width: 6px; height: 6px; border-radius: 99px; background: #DC2F33; flex: 0 0 6px;"></div>
+              <div style="font-size: 13.5px; color: #E4E6E9;">{{ r.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div onClick="{{ logout }}" style="font-size: 13.5px; font-weight: 600; border: 1px solid #DDE0E3; border-radius: 99px; padding: 11px 20px; cursor: pointer; align-self: flex-start; color: #5C6166;" style-hover="border-color: #AEB3B8;" role="button" tabindex="0">登出 Sign out</div>
+      </div>
+    </sc-if>
+
+  </main>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); background: #000000; color: #FFFFFF; font-size: 13.5px; font-weight: 600; padding: 12px 24px; border-radius: 99px; z-index: 30; box-shadow: 0 8px 28px rgba(0,0,0,0.28);">{{ toast }}</div>
+</sc-if>
+</template>
+
+
+<nav class="dc-preview-bar">
+  <a href="./index.html">← 全部畫面</a>
+  <span>讀者端 Patron Portal</span>
+</nav>
+<style>
+  .dc-preview-bar{position:fixed;right:16px;bottom:16px;z-index:2147483000;display:flex;align-items:center;gap:10px;
+    background:rgba(28,28,28,.9);color:#fff;border-radius:999px;padding:7px 14px 7px 13px;
+    font:500 12px/1 "Plus Jakarta Sans","Noto Sans TC",system-ui,sans-serif;
+    box-shadow:0 8px 28px rgba(0,0,0,.28);backdrop-filter:blur(12px);
+    opacity:.4;transition:opacity .18s ease-out;}
+  .dc-preview-bar:hover{opacity:1}
+  .dc-preview-bar a{color:#fff;text-decoration:none}
+  .dc-preview-bar a:hover{color:#fff}
+  .dc-preview-bar span{opacity:.55;border-left:1px solid rgba(255,255,255,.25);padding-left:10px}
+  @media print{.dc-preview-bar{display:none}}
+</style>
+<script>if (window.self !== window.top) document.querySelector(".dc-preview-bar").style.display = "none";</script>
+
+<script>
+/* ---------------------------------------------------------------
+   dc-runtime — 讓 design-canvas 樣板可以離線預覽的極簡執行環境
+   支援：{{ 綁定 }}、<sc-if>、<sc-for>、onClick / onChange、style-hover
+   --------------------------------------------------------------- */
+(function (global) {
+  "use strict";
+
+  var comp = null, root = null, tpl = null;
+  var hoverStyleEl = null, hoverMap = Object.create(null), hoverSeq = 0;
+  var scheduled = false;
+
+  function DCLogic() {}
+  DCLogic.prototype.setState = function (patch) {
+    var next = typeof patch === "function" ? patch(this.state) : patch;
+    this.state = Object.assign({}, this.state, next);
+    schedule();
+  };
+  global.DCLogic = DCLogic;
+
+  /* ---------- 運算式：只支援 a、a.b.c、true、false、數字 ---------- */
+  function evalExpr(raw, scope) {
+    var expr = String(raw).trim();
+    if (expr === "true") return true;
+    if (expr === "false") return false;
+    if (/^-?\d+(\.\d+)?$/.test(expr)) return Number(expr);
+    var parts = expr.split(".");
+    var v = scope[parts[0]];
+    for (var i = 1; i < parts.length && v != null; i++) v = v[parts[i]];
+    return v;
+  }
+
+  var BINDING = /\{\{([^}]*)\}\}/g;
+  var PURE = /^\s*\{\{([^}]*)\}\}\s*$/;
+
+  function interpolate(str, scope) {
+    return String(str).replace(BINDING, function (_, e) {
+      var v = evalExpr(e, scope);
+      return v == null || v === false ? "" : String(v);
+    });
+  }
+  function pureValue(str, scope) {
+    var m = PURE.exec(str);
+    return m ? evalExpr(m[1], scope) : undefined;
+  }
+
+  /* ---------- style-hover → 產生 :hover class ---------- */
+  function hoverClass(cssText) {
+    if (hoverMap[cssText]) return hoverMap[cssText];
+    var cls = "dc-h" + ++hoverSeq;
+    var decls = cssText
+      .split(";")
+      .map(function (d) { return d.trim(); })
+      .filter(Boolean)
+      .map(function (d) { return d.replace(/\s*!important\s*$/i, "") + " !important"; })
+      .join(";");
+    try {
+      hoverStyleEl.sheet.insertRule("." + cls + ":hover{" + decls + "}", hoverStyleEl.sheet.cssRules.length);
+    } catch (e) { /* 無效宣告就略過 */ }
+    hoverMap[cssText] = cls;
+    return cls;
+  }
+
+  /* ---------- 樣板 → DOM ---------- */
+  function renderChildren(tplNode, scope, out, ctx) {
+    var kids = tplNode.childNodes;
+    for (var i = 0; i < kids.length; i++) renderNode(kids[i], scope, out, ctx);
+  }
+
+  function renderNode(node, scope, out, ctx) {
+    /* 文字 */
+    if (node.nodeType === 3) {
+      var txt = node.nodeValue;
+      out.appendChild(document.createTextNode(BINDING.test(txt) ? interpolate(txt, scope) : txt));
+      BINDING.lastIndex = 0;
+      return;
+    }
+    if (node.nodeType !== 1) return;
+
+    var tag = node.tagName.toLowerCase();
+
+    /* 條件 */
+    if (tag === "sc-if") {
+      var cond = pureValue(node.getAttribute("value") || "", scope);
+      if (cond) renderChildren(node, scope, out, ctx);
+      return;
+    }
+
+    /* 迴圈 */
+    if (tag === "sc-for") {
+      var list = pureValue(node.getAttribute("list") || "", scope) || [];
+      var alias = node.getAttribute("as") || "item";
+      for (var i = 0; i < list.length; i++) {
+        var childScope = Object.create(scope);
+        childScope[alias] = list[i];
+        childScope[alias + "Index"] = i;
+        renderChildren(node, childScope, out, ctx);
+      }
+      return;
+    }
+
+    /* 一般元素 */
+    var el = document.createElement(tag);
+    var attrs = node.attributes;
+    var needsCursor = false;
+    for (var a = 0; a < attrs.length; a++) {
+      var name = attrs[a].name.toLowerCase();
+      var val = attrs[a].value;
+
+      if (name.indexOf("hint-") === 0) continue;
+
+      if (name === "onclick") {
+        var fn = pureValue(val, scope);
+        if (typeof fn === "function") {
+          el.addEventListener("click", fn);
+          /* 讓 role="button" 的元素也能用鍵盤操作 */
+          el.addEventListener("keydown", function (handler) {
+            return function (e) {
+              if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                e.preventDefault();
+                handler(e);
+              }
+            };
+          }(fn));
+          if (!/cursor\s*:/.test(node.getAttribute("style") || "")) needsCursor = true;
+        }
+        continue;
+      }
+      if (name === "onchange") {
+        var handler = pureValue(val, scope);
+        if (typeof handler === "function") el.addEventListener("input", handler);
+        continue;
+      }
+      if (name === "style-hover") {
+        el.classList.add(hoverClass(interpolate(val, scope)));
+        continue;
+      }
+      if (name === "value" && (tag === "input" || tag === "textarea" || tag === "select")) {
+        var v = interpolate(val, scope);
+        el.value = v;
+        el.setAttribute("data-dc-key", val + "#" + (ctx.keys[val] = (ctx.keys[val] || 0) + 1));
+        continue;
+      }
+      el.setAttribute(name, interpolate(val, scope));
+    }
+
+    if (needsCursor) el.style.cursor = "pointer";
+    renderChildren(node, scope, el, ctx);
+    out.appendChild(el);
+  }
+
+  /* ---------- render / 焦點與捲動保留 ---------- */
+  function render() {
+    var vals = comp.renderVals();
+
+    var act = document.activeElement;
+    var focusKey = act && act.getAttribute ? act.getAttribute("data-dc-key") : null;
+    var selStart = focusKey ? act.selectionStart : null;
+    var selEnd = focusKey ? act.selectionEnd : null;
+    var scrollY = window.scrollY;
+
+    var frag = document.createDocumentFragment();
+    renderChildren(tpl, vals, frag, { keys: Object.create(null) });
+    root.replaceChildren(frag);
+
+    if (focusKey) {
+      var back = root.querySelector('[data-dc-key="' + focusKey.replace(/"/g, '\\"') + '"]');
+      if (back) {
+        back.focus({ preventScroll: true });
+        try { back.setSelectionRange(selStart, selEnd); } catch (e) {}
+      }
+    }
+    window.scrollTo(0, scrollY);
+  }
+
+  function schedule() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(function () { scheduled = false; render(); });
+  }
+
+  global.DC = {
+    mount: function (instance, rootEl, templateEl) {
+      comp = instance;
+      root = rootEl;
+      tpl = templateEl.content || templateEl;
+      hoverStyleEl = document.createElement("style");
+      document.head.appendChild(hoverStyleEl);
+      render();
+    },
+    rerender: schedule
+  };
+})(window);
+
+</script>
+<script>
+const TODAY = new Date("2026-08-24T00:00:00");
+const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const addDays = (d, n) => { const x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; };
+const dayDiff = (a, b) => Math.round((new Date(a) - new Date(b)) / 86400000);
+const LOAN_DAYS = 14, MAX_LOANS = 5;
+
+const BOOKS = [
+  { isbn: "978-957-13-1234-5", title: "小王子", authors: ["Antoine de Saint-Exupéry", "李思穎 譯"], category: "文學", publisher: "時報出版", publishDate: "2015-03-20", price: 280, copies: 6, out: 1 },
+  { isbn: "978-149-190-393-8", title: "Designing Data-Intensive Applications", authors: ["Martin Kleppmann"], category: "資訊科學", publisher: "O'Reilly Media", publishDate: "2017-04-18", price: 1680, copies: 4, out: 4 },
+  { isbn: "978-986-522-441-0", title: "臺灣通史新編", authors: ["陳志遠"], category: "歷史", publisher: "聯經出版", publishDate: "2021-09-01", price: 720, copies: 3, out: 0 },
+  { isbn: "978-957-32-8801-3", title: "百年孤寂", authors: ["Gabriel García Márquez", "葉淑吟 譯"], category: "文學", publisher: "皇冠文化", publishDate: "2018-06-11", price: 460, copies: 5, out: 2 },
+  { isbn: "978-013-459-5106", title: "The Pragmatic Programmer", authors: ["Andrew Hunt", "David Thomas"], category: "資訊科學", publisher: "Addison-Wesley", publishDate: "2019-09-13", price: 1450, copies: 3, out: 1 },
+  { isbn: "978-986-134-960-1", title: "人類大歷史", authors: ["Yuval Noah Harari", "林俊宏 譯"], category: "歷史", publisher: "天下文化", publishDate: "2014-08-27", price: 560, copies: 8, out: 8 },
+  { isbn: "978-986-282-260-6", title: "西方美術史導論", authors: ["李文瑄"], category: "藝術", publisher: "藝術家出版社", publishDate: "2020-01-15", price: 620, copies: 2, out: 1 },
+  { isbn: "978-131-849-135-6", title: "量子力學基礎", authors: ["David J. Griffiths", "Darrell F. Schroeter"], category: "自然科學", publisher: "Cambridge Univ. Press", publishDate: "2022-02-08", price: 2100, copies: 4, out: 0 }
+];
+
+class Component extends DCLogic {
+  state = {
+    auth: false, mode: "login",
+    email: "", pw: "", pw2: "", regName: "", authMsg: "",
+    me: { id: "U-2019-0384", name: "林品瑄", email: "pinhsuan.lin@example.com" },
+    view: "search", query: "", filter: "全部", toast: "",
+    loans: [
+      { id: 1, isbn: "978-957-13-1234-5", start: "2026-08-18" },
+      { id: 2, isbn: "978-986-522-441-0", start: "2026-08-20" },
+      { id: 3, isbn: "978-957-32-8801-3", start: "2026-08-12" }
+    ],
+    history: [
+      { title: "夜間飛行", returned: "2026-08-12" },
+      { title: "宋詞選注", returned: "2026-07-30" },
+      { title: "深度學習", returned: "2026-07-18" }
+    ]
+  };
+
+  ping(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: "" }), 2600);
+  }
+  tab(k) {
+    const on = this.state.view === k;
+    return { bg: on ? "#FDF0F0" : "transparent", fg: on ? "#B7262A" : "#3A3E43", w: on ? 700 : 500 };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const go = (v) => () => this.setState({ view: v });
+    const t1 = this.tab("search"), t2 = this.tab("loans"), t3 = this.tab("account");
+    const isReg = s.mode === "register";
+    const count = s.loans.length;
+    const full = count >= MAX_LOANS;
+    const q = s.query.trim().toLowerCase();
+    const held = s.loans.map(l => l.isbn);
+
+    const mineOut = {};
+    s.loans.forEach(l => { mineOut[l.isbn] = (mineOut[l.isbn] || 0) + 1; });
+
+    const books = BOOKS.filter(b =>
+      (s.filter === "全部" || b.category === s.filter) &&
+      (!q || (b.title + b.authors.join("") + b.isbn + b.publisher).toLowerCase().includes(q))
+    );
+    const cats = ["全部"].concat(Array.from(new Set(BOOKS.map(b => b.category))));
+
+    return {
+      guest: !s.auth, signedIn: s.auth,
+      isRegister: isReg,
+      toLogin: () => this.setState({ mode: "login", authMsg: "" }),
+      toRegister: () => this.setState({ mode: "register", authMsg: "" }),
+      tabLoginBg: !isReg ? "#FFFFFF" : "transparent", tabLoginFg: !isReg ? "#1C1C1C" : "#6B7075", tabLoginW: !isReg ? 700 : 500,
+      tabRegBg: isReg ? "#FFFFFF" : "transparent", tabRegFg: isReg ? "#1C1C1C" : "#6B7075", tabRegW: isReg ? 700 : 500,
+      authTitle: isReg ? "建立帳號" : "歡迎回來",
+      authSub: isReg ? "註冊後即可線上借書、查詢借閱紀錄" : "使用 Email 與密碼登入你的借閱帳戶",
+      authCta: isReg ? "註冊並登入" : "登入",
+      email: s.email, pw: s.pw, pw2: s.pw2, regName: s.regName,
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onPw: (e) => this.setState({ pw: e.target.value }),
+      onPw2: (e) => this.setState({ pw2: e.target.value }),
+      onRegName: (e) => this.setState({ regName: e.target.value }),
+      hasAuthMsg: !!s.authMsg, authMsg: s.authMsg,
+      submitAuth: () => {
+        if (isReg && s.pw && s.pw2 && s.pw !== s.pw2) { this.setState({ authMsg: "兩次輸入的密碼不一致。" }); return; }
+        const name = isReg ? (s.regName.trim() || "新讀者") : s.me.name;
+        this.setState({
+          auth: true, authMsg: "", pw: "", pw2: "",
+          me: isReg
+            ? { id: "U-2026-" + String(Math.floor(Math.random() * 9000) + 1000), name, email: s.email.trim() || "new@example.com" }
+            : s.me,
+          loans: isReg ? [] : s.loans,
+          history: isReg ? [] : s.history,
+          view: "search"
+        });
+      },
+      logout: () => this.setState({ auth: false, mode: "login", pw: "", pw2: "", view: "search" }),
+
+      myName: s.me.name, myEmail: s.me.email, myId: s.me.id,
+      initial: s.me.name.slice(0, 1),
+      isSearch: s.view === "search", isLoans: s.view === "loans", isAccount: s.view === "account",
+      goSearch: go("search"), goLoans: go("loans"), goAccount: go("account"),
+      tSearchBg: t1.bg, tSearchFg: t1.fg, tSearchW: t1.w,
+      tLoansBg: t2.bg, tLoansFg: t2.fg, tLoansW: t2.w,
+      tAcctBg: t3.bg, tAcctFg: t3.fg, tAcctW: t3.w,
+
+      quotaTitle: `${count} / ${MAX_LOANS} 本`,
+      quotaNote: full ? "已達上限，請先歸還一本再借新書" : `還可借 ${MAX_LOANS - count} 本・每本借期 ${LOAN_DAYS} 天`,
+      quotaBg: full ? "#FDF0F0" : "#FFFFFF",
+      quotaBd: full ? "#F3CACB" : "#E6E8EA",
+      quotaFg: full ? "#B7262A" : "#1C1C1C",
+      quotaDots: Array.from({ length: MAX_LOANS }, (_, i) => ({ bg: i < count ? (full ? "#DC2F33" : "#1C1C1C") : "#E6E8EA" })),
+
+      query: s.query,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      filters: cats.map(label => {
+        const on = s.filter === label;
+        return { label, go: () => this.setState({ filter: label }), bg: on ? "#FFFFFF" : "transparent", fg: on ? "#1C1C1C" : "#E4E6E9", bd: on ? "#FFFFFF" : "#3A3E43" };
+      }),
+      resultLabel: `共 ${books.length} 筆結果・分類：${s.filter}`,
+      books: books.map(b => {
+        const avail = Math.max(0, b.copies - b.out - (mineOut[b.isbn] || 0));
+        const mine = held.includes(b.isbn);
+        const canBorrow = avail > 0 && !mine && !full;
+        return {
+          ...b,
+          authorLine: b.authors.join("、"),
+          availLabel: `可借 ${avail} / 共 ${b.copies} 冊`,
+          stLabel: avail > 0 ? "可借閱" : "全部借出",
+          stBg: avail > 0 ? "#EFF0F2" : "#FDE3E3",
+          stFg: avail > 0 ? "#3A3E43" : "#B7262A",
+          btnLabel: mine ? "已借閱中" : avail === 0 ? "無可借館藏" : full ? "已達 5 本上限" : "借閱 14 天",
+          btnBg: canBorrow ? "#DC2F33" : "#F7F8F9",
+          btnFg: canBorrow ? "#FFFFFF" : "#9DA2A8",
+          btnBd: canBorrow ? "#DC2F33" : "#E6E8EA",
+          cursor: canBorrow ? "pointer" : "default",
+          hint: mine ? "在「我的借閱」中歸還" : canBorrow ? `應還日 ${fmt(addDays(TODAY, LOAN_DAYS))}` : full ? "請先歸還一本" : "可預約候補",
+          act: () => {
+            if (!canBorrow) {
+              this.ping(full ? "已借滿 5 本，請先歸還一本再借。" : mine ? "你已借閱此書。" : "此書目前全部借出。");
+              return;
+            }
+            this.setState(st => ({ loans: st.loans.concat([{ id: Date.now(), isbn: b.isbn, start: fmt(TODAY) }]) }));
+            this.ping(`已借出《${b.title}》・應還 ${fmt(addDays(TODAY, LOAN_DAYS))}`);
+          }
+        };
+      }),
+
+      hasLoans: count > 0, noLoans: count === 0,
+      loansSummary: `借閱中 ${count} / ${MAX_LOANS} 本・借期 ${LOAN_DAYS} 天`,
+      myLoans: s.loans.filter(l => BOOKS.some(x => x.isbn === l.isbn)).map(l => {
+        const b = BOOKS.find(x => x.isbn === l.isbn);
+        const startD = new Date(l.start);
+        const dueD = addDays(startD, LOAN_DAYS);
+        const d = dayDiff(TODAY, dueD);
+        const elapsed = Math.min(LOAN_DAYS, Math.max(0, dayDiff(TODAY, startD)));
+        const over = d > 0, soon = !over && d > -4;
+        return {
+          title: b.title, isbn: l.isbn, start: l.start, due: fmt(dueD),
+          authorLine: b.authors.join("、"), category: b.category, publisher: b.publisher,
+          left: over ? `逾期 ${d} 天` : `剩 ${-d} 天`,
+          stBg: over ? "#FDE3E3" : soon ? "#FDF0F0" : "#EFF0F2",
+          stFg: over ? "#B7262A" : soon ? "#B7262A" : "#3A3E43",
+          cardBd: over ? "#F3CACB" : "#E6E8EA",
+          barW: Math.round((elapsed / LOAN_DAYS) * 100) + "%",
+          barBg: over ? "#DC2F33" : soon ? "#DC2F33" : "#1C1C1C",
+          note: over ? `罰款 NT$${d * 10}` : soon ? "即將到期" : `借期 ${LOAN_DAYS} 天`,
+          ret: () => {
+            this.setState(st => ({
+              loans: st.loans.filter(x => x.id !== l.id),
+              history: [{ title: b.title, returned: fmt(TODAY) }].concat(st.history)
+            }));
+            this.ping(`已歸還《${b.title}》`);
+          }
+        };
+      }),
+      history: s.history,
+
+      rules: [
+        { label: `每人同時最多借 ${MAX_LOANS} 本` },
+        { label: `每本借期上限 ${LOAN_DAYS} 天` },
+        { label: "借滿須先歸還才能再借" },
+        { label: "同一書名可能有多冊館藏" }
+      ],
+
+      hasToast: !!s.toast, toast: s.toast
+    };
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  DC.mount(new Component(), document.getElementById("dc-root"), document.getElementById("dc-tpl"));
+});
+</script>
+</body>
+</html>

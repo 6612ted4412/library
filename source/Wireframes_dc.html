@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+body{margin:0;background:#f0eee9;font-family:"Patrick Hand","Noto Sans TC",system-ui,sans-serif}
+a{color:#c8322f}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 "Noto Sans TC",system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11.5px/1.3 "Noto Sans TC",system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-card{max-width:100%;background:#fff;border:1.5px solid #2b2b2b;border-radius:8px;box-shadow:3px 3px 0 rgba(0,0,0,.12);overflow:hidden}
+.dv-opt:target .dv-oid{background:#c8322f;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.6 "Noto Sans TC",system-ui,sans-serif;color:rgba(0,0,0,.5)}
+
+.wf{font-size:14px;color:#2b2b2b}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1.5px dashed #9a9a9a}
+.logo{width:26px;height:26px;border:1.5px solid #2b2b2b;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.pill{border:1.5px solid #2b2b2b;border-radius:99px;padding:5px 12px;font-size:12.5px;background:#fff;white-space:nowrap}
+.tiny,.lbl,.h2{overflow-wrap:normal}
+.tbr .tiny{white-space:nowrap}
+.tblhd div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill.on{background:#2b2b2b;color:#fff}
+.pill.act{background:#c8322f;border-color:#c8322f;color:#fff}
+.box{border:1.5px solid #2b2b2b;border-radius:8px;padding:12px}
+.dash{border:1.5px dashed #9a9a9a;border-radius:8px;padding:12px}
+.ln{height:8px;border-radius:99px;background:#e2ded6}
+.body{padding:16px}
+.row{display:flex;gap:10px}
+.col{display:flex;flex-direction:column;gap:10px}
+.lbl{font-size:11px;color:#8a8a8a;font-family:"Noto Sans TC",sans-serif}
+.h1{font-size:19px;font-weight:700;font-family:"Noto Sans TC",sans-serif}
+.h2{font-size:14px;font-weight:700;font-family:"Noto Sans TC",sans-serif}
+.tiny{font-size:11.5px;color:#6c6c6c;font-family:"Noto Sans TC",sans-serif}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tblhd{display:grid;gap:10px;padding:8px 12px;border-bottom:1.5px solid #2b2b2b;font-size:11px;color:#6c6c6c;font-family:"Noto Sans TC",sans-serif}
+.tbr{display:grid;gap:10px;padding:10px 12px;border-bottom:1px dashed #cfcac1;align-items:center}
+.note{font-size:11px;color:#c8322f;font-family:"Noto Sans TC",sans-serif}
+.side{width:150px;border-right:1.5px dashed #9a9a9a;padding:12px;display:flex;flex-direction:column;gap:8px}
+.flowbox{border:1.5px solid #2b2b2b;border-radius:8px;padding:10px 12px;font-size:12.5px;font-family:"Noto Sans TC",sans-serif;background:#fff;text-align:center}
+.arrow{align-self:center;font-size:16px;color:#8a8a8a}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">圖書館系統 Wireframes — 流程、讀者端、管理端</span></div>
+
+  <div class="dv-opts">
+
+    <div class="dv-opt" id="1a">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>使用流程圖 Flow — 兩種角色的分岔</div>
+      <div class="dv-card wf" style="width:520px">
+        <div class="body col" style="gap:14px">
+          <div class="h2">角色分流 Role routing</div>
+          <div class="flowbox" style="border-style:dashed">進站 → 登入 / 註冊</div>
+          <div class="arrow">↓</div>
+          <div class="grid2">
+            <div class="col">
+              <div class="flowbox" style="background:#f4f1ec">一般使用者</div>
+              <div class="arrow">↓</div>
+              <div class="flowbox">館藏查詢</div>
+              <div class="flowbox">借閱（檢查 5 本上限）</div>
+              <div class="flowbox">我的借閱 → 歸還</div>
+              <div class="flowbox">帳戶 / 登出</div>
+            </div>
+            <div class="col">
+              <div class="flowbox" style="background:#f4f1ec">管理員</div>
+              <div class="arrow">↓</div>
+              <div class="flowbox">借閱管理（借出 / 歸還）</div>
+              <div class="flowbox">書籍管理 CRUD</div>
+              <div class="flowbox">使用者管理 CRUD</div>
+              <div class="flowbox">登出</div>
+            </div>
+          </div>
+          <div class="dash">
+            <div class="lbl" style="margin-bottom:6px">系統規則 Rules（兩端共用）</div>
+            <div class="tiny">每人同時上限 5 本／借期 14 天／借滿須先歸還／同書名多冊以 copies 計</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1b">
+      <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>登入 / 註冊 — 左右分割</div>
+      <div class="dv-card wf" style="width:420px">
+        <div class="row" style="gap:0">
+          <div class="col" style="flex:1;padding:16px;border-right:1.5px dashed #9a9a9a;background:#f7f5f1">
+            <div class="logo">◻︎</div>
+            <div class="h1" style="margin-top:8px">品牌區<br />＋規則說明</div>
+            <div class="ln" style="width:80%"></div>
+            <div class="ln" style="width:60%"></div>
+            <div class="tiny">・上限 5 本<br />・借期 14 天<br />・借滿先歸還</div>
+          </div>
+          <div class="col" style="flex:1;padding:16px">
+            <div class="row"><div class="pill on" style="flex:1;text-align:center">登入</div><div class="pill" style="flex:1;text-align:center">註冊</div></div>
+            <div class="lbl">Email</div><div class="box" style="padding:9px"><div class="ln" style="width:70%"></div></div>
+            <div class="lbl">密碼</div><div class="box" style="padding:9px"><div class="ln" style="width:50%"></div></div>
+            <div class="dash tiny">切到「註冊」時多出：姓名、確認密碼</div>
+            <div class="pill act" style="text-align:center">送出</div>
+            <div class="note">錯誤訊息區（密碼不符 / 帳號錯誤）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1c">
+      <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>讀者：館藏查詢 — 搜尋列＋卡片格</div>
+      <div class="dv-card wf" style="width:560px">
+        <div class="bar">
+          <div class="logo">◻︎</div>
+          <div class="pill on">館藏查詢</div><div class="pill">我的借閱</div><div class="pill">帳戶</div>
+          <div style="margin-left:auto" class="row"><div class="pill">頭像／姓名</div><div class="pill">登出</div></div>
+        </div>
+        <div class="body col">
+          <div class="box row" style="align-items:center;background:#f7f5f1">
+            <div class="h2">額度 3 / 5 本</div>
+            <div class="row" style="gap:4px">
+              <div class="ln" style="width:20px;background:#2b2b2b"></div><div class="ln" style="width:20px;background:#2b2b2b"></div>
+              <div class="ln" style="width:20px;background:#2b2b2b"></div><div class="ln" style="width:20px"></div><div class="ln" style="width:20px"></div>
+            </div>
+            <div class="tiny" style="margin-left:auto">還可借 2 本・借期 14 天</div>
+          </div>
+          <div class="box col" style="background:#f2f0ec">
+            <div class="h2">搜尋 書名 / 作者 / 出版商</div>
+            <div class="box" style="background:#fff;padding:9px"><div class="ln" style="width:60%"></div></div>
+            <div class="row" style="flex-wrap:wrap"><div class="pill on">全部</div><div class="pill">文學</div><div class="pill">歷史</div><div class="pill">資訊科學</div><div class="pill">藝術</div></div>
+          </div>
+          <div class="tiny">共 N 筆結果</div>
+          <div class="grid2">
+            <div class="box col">
+              <div class="row" style="align-items:flex-start"><div class="col" style="flex:1;gap:5px"><div class="h2">書名</div><div class="tiny">作者（可多位）</div></div><div class="pill">可借閱</div></div>
+              <div class="grid3">
+                <div class="col" style="gap:3px"><div class="lbl">分類</div><div class="ln" style="width:80%"></div></div>
+                <div class="col" style="gap:3px;grid-column:span 2"><div class="lbl">出版商・出版日</div><div class="ln" style="width:90%"></div></div>
+              </div>
+              <div class="col" style="gap:3px"><div class="lbl">館藏</div><div class="tiny">可借 4 / 共 6 冊</div></div>
+              <div class="row" style="align-items:center"><div class="pill act">借閱 14 天</div><div class="tiny">應還日自動計算</div></div>
+            </div>
+            <div class="box col" style="opacity:.75">
+              <div class="row" style="align-items:flex-start"><div class="col" style="flex:1;gap:5px"><div class="h2">書名（全部借出）</div><div class="tiny">作者</div></div><div class="pill">全部借出</div></div>
+              <div class="grid3">
+                <div class="col" style="gap:3px"><div class="lbl">分類</div><div class="ln" style="width:80%"></div></div>
+                <div class="col" style="gap:3px;grid-column:span 2"><div class="lbl">出版商・出版日</div><div class="ln" style="width:90%"></div></div>
+              </div>
+              <div class="col" style="gap:3px"><div class="lbl">館藏</div><div class="tiny">可借 0 / 共 4 冊</div></div>
+              <div class="row" style="align-items:center"><div class="pill" style="background:#eee;color:#999;border-color:#ccc">無可借館藏</div></div>
+            </div>
+          </div>
+          <div class="dash note">按鈕三種停用狀態：已借閱中／無庫存／已達 5 本上限（附提示 toast）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1d">
+      <div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>讀者：我的借閱 — 一本一卡</div>
+      <div class="dv-card wf" style="width:460px">
+        <div class="bar">
+          <div class="logo">◻︎</div><div class="pill">館藏查詢</div><div class="pill on">我的借閱</div><div class="pill">帳戶</div>
+          <div style="margin-left:auto" class="pill">登出</div>
+        </div>
+        <div class="body col">
+          <div class="h1">我的借閱</div>
+          <div class="tiny">借閱中 3 / 5 本・借期 14 天</div>
+          <div class="grid2">
+            <div class="box col">
+              <div class="row" style="align-items:flex-start"><div class="col" style="flex:1;gap:4px"><div class="h2">書名</div><div class="tiny">作者</div></div><div class="pill">剩 9 天</div></div>
+              <div class="col" style="gap:5px">
+                <div class="ln"><div style="width:35%;height:8px;border-radius:99px;background:#2b2b2b"></div></div>
+                <div class="row" style="justify-content:space-between"><div class="lbl">借出 08-18</div><div class="lbl">應還 09-01</div></div>
+              </div>
+              <div class="grid2">
+                <div class="col" style="gap:3px"><div class="lbl">分類</div><div class="ln" style="width:70%"></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">出版商</div><div class="ln" style="width:80%"></div></div>
+              </div>
+              <div class="pill act" style="align-self:flex-start">歸還</div>
+            </div>
+            <div class="box col" style="border-color:#c8322f">
+              <div class="row" style="align-items:flex-start"><div class="col" style="flex:1;gap:4px"><div class="h2">書名（逾期）</div><div class="tiny">作者</div></div><div class="pill act">逾期 2 天</div></div>
+              <div class="col" style="gap:5px">
+                <div class="ln"><div style="width:100%;height:8px;border-radius:99px;background:#c8322f"></div></div>
+                <div class="row" style="justify-content:space-between"><div class="lbl">借出 08-08</div><div class="lbl">應還 08-22</div></div>
+              </div>
+              <div class="grid2">
+                <div class="col" style="gap:3px"><div class="lbl">分類</div><div class="ln" style="width:70%"></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">出版商</div><div class="ln" style="width:80%"></div></div>
+              </div>
+              <div class="row" style="align-items:center"><div class="pill act">歸還</div><div class="note">罰款 NT$20</div></div>
+            </div>
+          </div>
+          <div class="box col">
+            <div class="h2">歸還紀錄 History</div>
+            <div class="row" style="justify-content:space-between"><div class="ln" style="width:50%"></div><div class="lbl">08-12 已歸還</div></div>
+            <div class="row" style="justify-content:space-between"><div class="ln" style="width:40%"></div><div class="lbl">07-30 已歸還</div></div>
+          </div>
+          <div class="dash tiny">空狀態：沒有借閱中的書 → CTA「去查詢館藏」</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1e">
+      <div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>管理員：借閱管理 — 側欄＋統計＋表格</div>
+      <div class="dv-card wf" style="width:720px">
+        <div class="row" style="gap:0">
+          <div class="side">
+            <div class="row" style="align-items:center"><div class="logo">◻︎</div><div class="h2">Admin</div></div>
+            <div class="pill on">借閱管理</div>
+            <div class="pill">書籍管理</div>
+            <div class="pill">使用者管理</div>
+            <div class="dash tiny" style="margin-top:6px">館規<br />5 本 / 14 天</div>
+            <div class="pill" style="margin-top:auto">登出</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="bar"><div class="box" style="flex:1;padding:8px"><div class="ln" style="width:45%"></div></div><div class="tiny">日期</div></div>
+            <div class="body col">
+              <div class="row" style="align-items:center"><div class="h1">借閱管理</div><div class="pill act" style="margin-left:auto">＋ 新增借閱</div></div>
+              <div class="grid2" style="grid-template-columns:repeat(4,1fr)">
+                <div class="box col" style="gap:4px"><div class="lbl">借閱中</div><div class="h1">N</div></div>
+                <div class="box col" style="gap:4px"><div class="lbl">今日歸還</div><div class="h1">N</div></div>
+                <div class="box col" style="gap:4px;border-color:#c8322f"><div class="lbl" style="color:#c8322f">逾期</div><div class="h1" style="color:#c8322f">N</div></div>
+                <div class="box col" style="gap:4px"><div class="lbl">借滿的人</div><div class="h1">N</div></div>
+              </div>
+              <div class="row"><div class="pill on">全部</div><div class="pill">借閱中</div><div class="pill">逾期</div><div class="pill">已歸還</div></div>
+              <div class="box" style="padding:0">
+                <div class="tblhd" style="grid-template-columns:90px minmax(120px,1fr) 62px 62px 62px 52px"><div>使用者</div><div>書名 / ISBN</div><div>借出日</div><div>應還日</div><div>狀態</div><div>操作</div></div>
+                <div class="tbr" style="grid-template-columns:90px minmax(120px,1fr) 62px 62px 62px 52px"><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="pill" style="font-size:10px;padding:3px 7px">剩 5 天</div><div class="pill" style="font-size:10px;padding:3px 7px">歸還</div></div>
+                <div class="tbr" style="grid-template-columns:90px minmax(120px,1fr) 62px 62px 62px 52px"><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="pill act" style="font-size:10px;padding:3px 7px">逾期</div><div class="pill" style="font-size:10px;padding:3px 7px">歸還</div></div>
+                <div class="tbr" style="grid-template-columns:90px minmax(120px,1fr) 62px 62px 62px 52px"><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="pill" style="font-size:10px;padding:3px 7px;background:#eee">已歸還</div><div class="lbl">—</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1f">
+      <div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>管理員：新增借閱彈窗 — 規則檢核</div>
+      <div class="dv-card wf" style="width:360px">
+        <div class="body col">
+          <div class="row" style="align-items:flex-start"><div class="col" style="flex:1;gap:4px"><div class="h1">新增借閱</div><div class="tiny">借期 14 天・上限 5 本</div></div><div class="lbl">✕</div></div>
+          <div class="lbl">選擇使用者</div>
+          <div class="row" style="flex-wrap:wrap"><div class="pill on">王小明 2/5</div><div class="pill">李小美 5/5</div><div class="pill">陳大同 0/5</div></div>
+          <div class="lbl">選擇書籍（僅有庫存）</div>
+          <div class="col">
+            <div class="box row" style="align-items:center;border-color:#c8322f;background:#fdf0f0"><div class="col" style="flex:1;gap:3px"><div class="h2">書名</div><div class="lbl">ISBN</div></div><div class="tiny">可借 4</div></div>
+            <div class="box row" style="align-items:center"><div class="col" style="flex:1;gap:3px"><div class="h2">書名</div><div class="lbl">ISBN</div></div><div class="tiny">可借 1</div></div>
+          </div>
+          <div class="dash note">檢核訊息：已借滿 5 本 → 必須先歸還／此書全部借出 → 不可借</div>
+          <div class="row" style="justify-content:flex-end"><div class="pill">取消</div><div class="pill act">確認借出</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1g">
+      <div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>管理員：書籍管理 — 表格 CRUD ＋ 表單</div>
+      <div class="dv-card wf" style="width:780px">
+        <div class="row" style="gap:0">
+          <div class="side">
+            <div class="row" style="align-items:center"><div class="logo">◻︎</div><div class="h2">Admin</div></div>
+            <div class="pill">借閱管理</div><div class="pill on">書籍管理</div><div class="pill">使用者管理</div>
+          </div>
+          <div style="flex:1;min-width:0" class="body col">
+            <div class="row" style="align-items:center"><div class="h1">書籍管理</div><div class="pill act" style="margin-left:auto">＋ 新增書籍</div></div>
+            <div class="row" style="flex-wrap:wrap"><div class="pill on">全部</div><div class="pill">文學</div><div class="pill">歷史</div><div class="pill">資訊科學</div></div>
+            <div class="box" style="padding:0">
+              <div class="tblhd" style="grid-template-columns:84px minmax(96px,1fr) 76px 46px 42px 36px 88px"><div>ISBN</div><div>書名 / 作者</div><div>出版商</div><div>分類</div><div>定價</div><div>庫存</div><div>操作</div></div>
+              <div class="tbr" style="grid-template-columns:84px minmax(96px,1fr) 76px 46px 42px 36px 88px"><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="tiny">4/6</div><div class="row" style="gap:6px"><div class="pill" style="font-size:10px;padding:3px 7px">編輯</div><div class="pill" style="font-size:10px;padding:3px 7px;color:#c8322f;border-color:#c8322f">刪除</div></div></div>
+              <div class="tbr" style="grid-template-columns:84px minmax(96px,1fr) 76px 46px 42px 36px 88px"><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="tiny">0/4</div><div class="row" style="gap:6px"><div class="pill" style="font-size:10px;padding:3px 7px">編輯</div><div class="pill" style="font-size:10px;padding:3px 7px;color:#c8322f;border-color:#c8322f">刪除</div></div></div>
+            </div>
+            <div class="dash col">
+              <div class="h2">新增／編輯書籍 彈窗（8 欄位）</div>
+              <div class="grid2">
+                <div class="col" style="gap:3px;grid-column:span 2"><div class="lbl">ISBN</div><div class="box" style="padding:7px"><div class="ln" style="width:55%"></div></div></div>
+                <div class="col" style="gap:3px;grid-column:span 2"><div class="lbl">title 書名</div><div class="box" style="padding:7px"><div class="ln" style="width:70%"></div></div></div>
+                <div class="col" style="gap:3px;grid-column:span 2"><div class="lbl">authors 作者（多位以、分隔）</div><div class="box" style="padding:7px"><div class="ln" style="width:60%"></div></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">category</div><div class="box" style="padding:7px"><div class="ln" style="width:60%"></div></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">publisher</div><div class="box" style="padding:7px"><div class="ln" style="width:60%"></div></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">publish date</div><div class="box" style="padding:7px"><div class="ln" style="width:50%"></div></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">price</div><div class="box" style="padding:7px"><div class="ln" style="width:40%"></div></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">copies 庫存（＝同書名冊數）</div><div class="box" style="padding:7px"><div class="ln" style="width:30%"></div></div></div>
+              </div>
+              <div class="row" style="justify-content:flex-end"><div class="pill">取消</div><div class="pill on">儲存</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1h">
+      <div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>管理員：使用者管理 — 讀者／管理員分開兩表</div>
+      <div class="dv-card wf" style="width:780px">
+        <div class="row" style="gap:0">
+          <div class="side">
+            <div class="row" style="align-items:center"><div class="logo">◻︎</div><div class="h2">Admin</div></div>
+            <div class="pill">借閱管理</div><div class="pill">書籍管理</div><div class="pill on">使用者管理</div>
+          </div>
+          <div style="flex:1;min-width:0" class="body col">
+            <div class="h1">使用者管理</div>
+            <div class="tiny">讀者與管理員分開管理・讀者上限 5 本／人</div>
+
+            <div class="row" style="align-items:center"><div class="h2">一般使用者 Patrons</div><div class="pill act" style="margin-left:auto">＋ 新增讀者</div></div>
+            <div class="box" style="padding:0">
+              <div class="tblhd" style="grid-template-columns:56px minmax(110px,1fr) 88px 56px 96px"><div>證號</div><div>姓名 / Email</div><div>借閱狀況</div><div>狀態</div><div>操作</div></div>
+              <div class="tbr" style="grid-template-columns:56px minmax(110px,1fr) 88px 56px 96px"><div class="ln"></div><div class="ln"></div><div class="col" style="gap:4px"><div class="tiny">2 / 5 本</div><div class="ln"><div style="width:40%;height:8px;border-radius:99px;background:#2b2b2b"></div></div></div><div class="pill" style="font-size:10px;padding:3px 7px">正常</div><div class="row" style="gap:6px"><div class="pill" style="font-size:10px;padding:3px 7px">編輯</div><div class="pill" style="font-size:10px;padding:3px 7px;color:#c8322f;border-color:#c8322f">刪除</div></div></div>
+              <div class="tbr" style="grid-template-columns:56px minmax(110px,1fr) 88px 56px 96px"><div class="ln"></div><div class="ln"></div><div class="col" style="gap:4px"><div class="tiny">5 / 5 本</div><div class="ln"><div style="width:100%;height:8px;border-radius:99px;background:#c8322f"></div></div></div><div class="pill act" style="font-size:10px;padding:3px 7px">已借滿</div><div class="row" style="gap:6px"><div class="pill" style="font-size:10px;padding:3px 7px">編輯</div><div class="pill" style="font-size:10px;padding:3px 7px;color:#c8322f;border-color:#c8322f">刪除</div></div></div>
+              <div class="tbr" style="grid-template-columns:56px minmax(110px,1fr) 88px 56px 96px"><div class="ln"></div><div class="ln"></div><div class="col" style="gap:4px"><div class="tiny">0 / 5 本</div><div class="ln"></div></div><div class="pill" style="font-size:10px;padding:3px 7px;background:#eee">停權</div><div class="row" style="gap:6px"><div class="pill" style="font-size:10px;padding:3px 7px">編輯</div><div class="pill" style="font-size:10px;padding:3px 7px;color:#c8322f;border-color:#c8322f">刪除</div></div></div>
+            </div>
+
+            <div class="row" style="align-items:center;margin-top:4px"><div class="h2">管理員 Admins</div><div class="pill on" style="margin-left:auto">＋ 新增管理員</div></div>
+            <div class="box" style="padding:0;border-width:2px">
+              <div class="tblhd" style="grid-template-columns:56px minmax(110px,1fr) 88px 56px 96px;background:#f2f0ec"><div>帳號代碼</div><div>姓名 / Email</div><div>權限範圍</div><div>狀態</div><div>操作</div></div>
+              <div class="tbr" style="grid-template-columns:56px minmax(110px,1fr) 88px 56px 96px"><div class="ln"></div><div class="ln"></div><div class="tiny">全部權限</div><div class="pill" style="font-size:10px;padding:3px 7px">啟用</div><div class="row" style="gap:6px"><div class="pill" style="font-size:10px;padding:3px 7px">編輯</div><div class="pill" style="font-size:10px;padding:3px 7px;color:#c8322f;border-color:#c8322f">刪除</div></div></div>
+              <div class="tbr" style="grid-template-columns:56px minmax(110px,1fr) 88px 56px 96px"><div class="ln"></div><div class="ln"></div><div class="tiny">全部權限</div><div class="pill" style="font-size:10px;padding:3px 7px;background:#eee">停用</div><div class="row" style="gap:6px"><div class="pill" style="font-size:10px;padding:3px 7px">編輯</div><div class="pill" style="font-size:10px;padding:3px 7px;color:#c8322f;border-color:#c8322f">刪除</div></div></div>
+            </div>
+            <div class="lbl">管理員不受借閱上限限制，故無借閱狀況欄</div>
+
+            <div class="dash col">
+              <div class="h2">新增／編輯使用者 彈窗</div>
+              <div class="grid2">
+                <div class="col" style="gap:3px"><div class="lbl">證號</div><div class="box" style="padding:7px"><div class="ln" style="width:60%"></div></div></div>
+                <div class="col" style="gap:3px"><div class="lbl">姓名</div><div class="box" style="padding:7px"><div class="ln" style="width:50%"></div></div></div>
+                <div class="col" style="gap:3px;grid-column:span 2"><div class="lbl">Email</div><div class="box" style="padding:7px"><div class="ln" style="width:70%"></div></div></div>
+                <div class="col" style="gap:3px;grid-column:span 2"><div class="lbl">身分（由所在區塊預填）</div><div class="row"><div class="pill on">一般使用者</div><div class="pill">管理員</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="dv-next">可以這樣接：「<a class="dv-oid" href="#1c">1c</a> 改成清單式而不是卡片」・「<a class="dv-oid" href="#1e">1e</a> 的側欄改成頂部分頁」・「幫 <a class="dv-oid" href="#1d">1d</a> 加上續借流程」・「再給我 2 個借閱管理的排版方向」</p>
+</section>
+</x-dc>
+</body>
+</html>
